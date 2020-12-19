@@ -28,13 +28,22 @@
 </head>
 <body>
   <section>
+
     <div id="app"></div>
 
   </section>
 
   <script>
 
-   Tetris(document.getElementById('app'), {});
+   const mainmd = `
+<initial 8/7p/p4p2/k1pP1Pp1/6P1/P2K4/8/8 b - - 0 1>
+<pawnendgame 8/7p/p4p2/k1pP1Pp1/6P1/P2K4/8/8 b - - 0 1>
+=initial 0
+`;
+
+   Tetris(document.getElementById('app'), {
+     md: mainmd
+   });
    
   </script>
 

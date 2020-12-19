@@ -1,3 +1,4 @@
+const pkg = require('./package.json');
 var path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -13,7 +14,6 @@ const devConfig = {
     hot: true,
     inline: true,
     host: '0.0.0.0',
-    disableHostCheck: true
   },
   output: {
     filename: 'bundle.js',
@@ -48,7 +48,10 @@ const devConfig = {
       template: 'src/index.html',
       inject: 'head'
     }),
-    new webpack.HotModuleReplacementPlugin({})
+    new webpack.HotModuleReplacementPlugin({}),
+    new webpack.DefinePlugin({
+      __VERSION__: JSON.stringify(pkg.version)
+    })
   ]
 };
 
@@ -92,14 +95,62 @@ const prodConfig = {
     }),
     new MiniCssExtractPlugin({}),
     new CopyPlugin([
-    ])
+    ]),
+    new webpack.DefinePlugin({
+      __VERSION__: JSON.stringify(pkg.version)
+    })
+  ]
+};
+
+const prodUmdConfig = {
+  entry: [
+    path.resolve(__dirname, 'src') + '/boot.js'
+  ],
+  mode: 'production',
+  output: {
+    filename: 'bundle_umd.js',
+    libraryTarget: 'umd',
+  },
+  devtool: 'none',
+  target: 'web',
+  module: {
+    rules: [
+      {
+        test: /\.js?$/,
+        use: 'babel-loader',
+        exclude: path.resolve(__dirname, './node_modules/')
+      },{
+        test: /\.(jpe?g|png|gif|svg|json)$/i,
+        loader: 'file-loader',
+        options: {
+          name: '[path][name].[ext]'
+        }
+      },
+      {
+        test: /\.(frag?g|vert)$/i,
+        use: 'raw-loader'
+      },
+      {
+        test: /\.css?$/,
+        use: [{loader: MiniCssExtractPlugin.loader, options: {}}, 'css-loader'],
+        exclude: path.resolve(__dirname, './node_modules/')
+      }
+    ]
+  },
+  plugins: [
+    new MiniCssExtractPlugin({}),
+    new CopyPlugin([
+    ]),
+    new webpack.DefinePlugin({
+      __VERSION__: JSON.stringify(pkg.version)
+    })
   ]
 };
 
 module.exports = (env) => {
   switch (env) {
   case 'production':
-    return prodConfig;
+    return [prodConfig, prodUmdConfig];
   default:
     return devConfig;
   }
