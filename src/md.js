@@ -6,7 +6,8 @@ export const Code = 1,
 Text = 2;
 
 export function parseCode(code) {
-  const variationRegex = /^([a-zA-Z][^\s]*) ([a-zA-Z][^\s]*) (.*)/;
+  const mainLine = /^([a-zA-Z][^\s]*) (.*)/;
+  const variationRegex = /^([a-zA-Z][^\s]*) ([a-zA-Z][^\s|^\/]*) (.*)/;
   let match;
 
   code = code.substring(1, code.length - 1);
@@ -15,6 +16,13 @@ export function parseCode(code) {
     let [_, variation, base, line] = match;
     return { variation, base, line };
   }
+
+  if ((match = code.match(mainLine))) {
+    let [_, variation, line] = match;
+    return { variation, line };
+  }
+
+
   return { line: code };
 }
 

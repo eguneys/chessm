@@ -25,6 +25,14 @@ Regular header
 
 # Definitions
 
+1 Paragraph
+    1 Code
+        base variation line
+        base line
+    2 Text
+2 Heading
+3 Ply
+
 Ply 0 main
 line main
 line main2 based main
@@ -32,7 +40,7 @@ line main2a based main2
 Ply 1 main
 
 Plys
-    from data-ply
+    from ply
     variation name, ply
     ask history
       situationFor(variation, ply)
@@ -44,7 +52,7 @@ Plys
     </board>
 
 Lines
-    from data-line
+    from line
     variation name, line
     ask history
       moveFor(variation, ply)
@@ -54,6 +62,11 @@ Lines
     <span class='movem'>Nf6</span>
 
 History
-    from data-game and data-line
+    from game and line
     games
     lines
+
+
+Game
+    Base,
+    Line
