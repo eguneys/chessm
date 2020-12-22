@@ -17,36 +17,117 @@
      body {
          font-family: 'Roboto', sans-serif;
          background: black;
+         color: #fcfcfc;
      }
 
      section {
-         width: 100%;
-         height: 100%;
          background: #202020;
      }
+
+     h1, h2 {
+         font-family: 'Roboto' sans-serif;
+         color: pink;
+         margin: 0;
+     }
+
+     h1 {
+         font-size: 2.2em;
+     }
+
+     h2 {
+         margin: 1em 0;
+         font-size: 1.4em;
+     }
+
+     p {
+         font-size: 1.4em;
+     }
+
+
+     .ply,
+     [data-fen],
+     [data-ply],
+     .hover-ply {
+         width: 60vmin;
+         height: 0;
+         padding-bottom: 60vmin;
+     }
+
+     img {
+         width: 60vmin;
+     }
+
+     .ply,
+     [data-fen],
+     [data-ply] {
+         position: relative;
+         margin-left: 1em;
+     }
+
+
     </style>
 </head>
 <body>
-  <section>
 
-    <div id="app"></div>
+  <section id='app'></section>
 
-  </section>
+  <section id='app2'></section>
 
   <script>
 
    const mainmd = `
+# Header 
 <initial rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1> 
+Welcome <pawnendgame 8/7p/p4p2/k1pP1Pp1/6P1/P2K4/8/8 b - - 0 1> 
+Hello <main2 initial 1. e4 e5 2. Nf3 Nf6> 
+#Whatever
 
-<pawnendgame 8/7p/p4p2/k1pP1Pp1/6P1/P2K4/8/8 b - - 0 1> 
+lkasdfj lkj asdfkl
 
-<main2 initial 1. e4 e5 2. Nf3 Nf6> 
-
-=initial 0
+=main2 1
 `;
 
-   Tetris(document.getElementById('app'), {
-     md: mainmd
+   const mainmd2 = `
+# Key Squares
+
+A Key square is when the king occupies it, it is a win regardless of whose turn it is to move.
+
+<keyd5 8/3k4/8/3K4/3P4/8/8/8 w - - 0 1>
+
+<keyc5 2k5/8/2K5/2P5/8/8/8/8 w - - 0 1>
+
+King on d5 doesn't win. Key squares are c6 d6 and e6.
+
+=keyd5 0
+
+King on c5 wins because key squares are: b7 c7 d7 and also b6 c6 d6.
+
+=keyc5 0
+
+
+# J. Moravec, 1952
+
+<moravec 2k5/8/8/7p/8/8/6P1/5K2 w - - 0 1>
+
+=moravec 0
+
+<moravec 1. Kf2 h4 2. Kg1> !!
+
+The natural line <naturalKf3 moravec 2. Kf3 h3 3. g4 Kd7 4. Kg3 Ke6 5. Kxh3 Kf6 6. Kh4 Kg6> and white cannot gain control of the key squares.
+
+<moravec 2... h3 3. g3> !
+
+<moravec 3... Kd7 4. Kh2 Ke6 5. Kxh3 Kf5 6. Kh4 Kg6 7. Kg4> ⊙ +−.
+
+
+`;
+
+   /* Tetris(document.getElementById('app'), {
+    *   md: mainmd
+    * }); */
+
+   Tetris(document.getElementById('app2'), {
+     md: mainmd2
    });
    
   </script>

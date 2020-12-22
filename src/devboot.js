@@ -1,4 +1,7 @@
 require('./index.css');
+require('./notation.css');
+require('./ply.css');
+require('../assets/pixel.css');
 
 const main = require('./main');
 

@@ -4,7 +4,8 @@ export function app(element, options) {
 
   let play = new Play(options.md);
 
-  let $_ = play.render();
-
+  let $_ = play.wrap();
   element.appendChild($_);
+
+  play.render();
 }

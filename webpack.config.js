@@ -30,7 +30,12 @@ const devConfig = {
         exclude: path.resolve(__dirname, './node_modules/')
       },{
         test: /\.(jpe?g|png|gif|svg|json)$/i,
-        use: 'file-loader'
+        use: [{
+          loader: 'file-loader',
+          options: {
+            esModule: false
+          }
+        }]
       },
       {
         test: /\.(frag?g|vert)$/i,

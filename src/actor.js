@@ -56,7 +56,12 @@ export default function Actor(piece, pos, board) {
       break;
     case 'king':
       res.push(shortRange(King.dirs));
-      res.push(castle());
+
+      // hack, avoid castle if king is on the edge
+      if (!pos.right() || !pos.left()) {
+      } else {
+        res.push(castle());
+      }
       break;
     case 'knight':
       res.push(shortRange(Knight.dirs));

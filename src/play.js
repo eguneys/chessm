@@ -1,10 +1,12 @@
+import { valid, invalid } from './valid';
 import { objMap, objForeach } from './outil';
-import * as tags from './tags';
 import * as md from './md';
 import { isFen } from './util';
 import Board from './board';
 import Situation from './situation';
 import { parseLine } from './parser';
+import { MdRender, PlyRender }  from './mdrender';
+import * as dom from './dom';
 
 function Game(games) {
 
@@ -23,6 +25,8 @@ function Game(games) {
 
     this.basePly = line[0] ? line[0].ply - 1 : 0;
 
+    this.moves = [];
+
     this.plies = [];
 
     this.elies = [];
@@ -31,6 +35,8 @@ function Game(games) {
   };
 
   this.ply = (ply) => this.plies[ply];
+  this.move = (ply) => this.moves[ply];
+  this.ely = (ply) => this.elies[ply];
 
   // assumes base games has been played
   this.play = () => {
@@ -40,13 +46,13 @@ function Game(games) {
     }
 
     if (this.initialPlyAsSituation) {
-      this.plies.push(this.initialPlyAsSituation);
+      this.plies[this.basePly] = this.initialPlyAsSituation;
     }
 
     if (line.length > 0) {
       if (!this.initialPlyAsSituation) {
         this.initialPlyAsSituation = games.ply(this.base, this.basePly);
-        this.plies.push(this.initialPlyAsSituation);
+        this.plies[this.basePly] = this.initialPlyAsSituation;
       }
 
       line.forEach(({ ply, move }) => {
@@ -54,6 +60,7 @@ function Game(games) {
         if (beforePly) {
           move.move(beforePly).fold(_ => {
             this.plies[ply] = _.situationAfter();
+            this.moves[ply] = _;
           }, _ => {
             this.elies[ply] = _;
           });
@@ -62,7 +69,6 @@ function Game(games) {
         }
       });
     }
-
 
     this.playedOut = true;
   };
@@ -112,7 +118,17 @@ function Games(play) {
     game.play();
   };
 
+  this.lineDepth = (game, depth = 0) => {
+    if (games[game].base) {
+      return 1 + this.lineDepth(games[game].base);
+    } else {
+      return depth;
+    }
+  };
+
   this.ply = (game, ply) => games[game].ply(ply);
+  this.move = (game, ply) => games[game].move(ply);
+  this.err = (game, ply) => games[game].ely(ply);
 
   this.init = as => {
     codes = extractCodes(as);
@@ -150,27 +166,90 @@ function Games(play) {
     objForeach(games, (_, g) =>
       this.playUptoBase(g)
     );
-
-    console.log(games);
   };
   
 }
 
 export default function Play(_md) {
 
+  let $_;
+
   let games = new Games(this);
+  this.games = games;
 
   let as = md.parseMdFull(_md);
   readLines(as);
 
   games.init(as);
 
-  this.render = () => {
-    let $wrap = tags.tag('cm-wrap')([
-      
-    ]);
+  this.lineDepth = games.lineDepth;
 
-    return $wrap;
+  this.vMove = (variation, ply) => {
+    let err = games.err(variation, ply),
+        move = games.move(variation, ply);
+
+    if (err) {
+      return invalid(err);
+    } else {
+      return valid(move);
+    }
+  };
+
+  this.plyZero = (variation) => {
+    return games.ply(variation, 0);
+  };
+
+  let mdrender = new MdRender(this, as);
+
+  mdrender.listen();
+
+  let visiblePly = this.visiblePly = mdrender.visiblePly;
+
+  let $hoverEl = dom.div('.hover-ply', [], dom.fHide);
+  let hoverPly = new PlyRender(this, $hoverEl);
+
+  this.hide = () => {
+    dom.fHide($hoverEl);
+  };
+
+  this.show = (variation, ply, $el) => {
+
+    let vp = visiblePly();
+    let posToTranslate = [window.pageXOffset, window.pageYOffset];
+
+    if (vp) {
+      posToTranslate[0] += vp.bounds().left;
+      posToTranslate[1] += vp.bounds().top;      
+    } else {
+      let { clientWidth } = $_;
+
+      let offBounds = $el.getBoundingClientRect();
+      let helBounds = $hoverEl.getBoundingClientRect();
+
+      if (offBounds.left < clientWidth / 2) {
+        posToTranslate[0] += clientWidth - helBounds.width - 4;
+      }
+    }
+
+    dom.fTranslateAbs(posToTranslate)($hoverEl);
+
+
+    hoverPly.init(variation, ply);
+    hoverPly.render();
+    dom.fShow($hoverEl);
+  };
+
+
+  this.wrap = () => {
+    $_ = mdrender.wrap();
+
+    $_.appendChild($hoverEl);
+    
+    return $_;
+  };
+
+  this.render = () => {
+    mdrender.render();
   };
 
 }
